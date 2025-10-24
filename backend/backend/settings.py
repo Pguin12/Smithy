@@ -1,3 +1,4 @@
+
 """
 Django settings for backend project.
 
@@ -10,17 +11,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+load_dotenv()
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-d%r0q#fauh))mypob!mi2c9s!88n*wcldsfrj!f4o=zo2c09u3"
+SECRET_KEY = os.environ.get('DJANGO_SECRETKEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'smithy', #game name, admin user, password
         'USER': 'smithy_admin',
-        'PASSWORD': 'KnightsOTRT',
+        'PASSWORD': os.environ.get('DATABASEPASS'),
         'HOST': 'localhost', #is this good? Are we doing remote server idk
         'PORT': '5432', #this is just default postgresql port
     }
