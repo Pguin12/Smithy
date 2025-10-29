@@ -41,10 +41,10 @@ class CraftingRecipe(models.Model):
         related_name="createdBy"
     )
 
+    class NoDuplicate:
+        unique_together = ('item_a', 'item_b')
 
-class NoDuplicate:
-    unique_together = ('item_a', 'item_b')
-
-
-def __str__(self):
-    return f"{self.item_a.name} + {self.ingredient_b.name} = {self.result.name}"
+    def __str__(self):
+        return (
+            f"{self.item_a.name} + {self.item_b.name} = "
+            f"{self.result.name}")
