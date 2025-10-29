@@ -1,3 +1,4 @@
+
 """
 Django settings for backend project.
 
@@ -9,8 +10,11 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-d%r0q#fauh))mypob!mi2c9s!88n*wcldsfrj!f4o=zo2c09u3"
+SECRET_KEY = os.environ.get('DJANGO_SECRETKEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +41,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # local
+    'smithy',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -72,18 +79,18 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'smithy', #game name, admin user, password
         'USER': 'smithy_admin',
-        'PASSWORD': 'KnightsOTRT',
+        'PASSWORD': "KnightsOTRT",
         'HOST': 'localhost', #is this good? Are we doing remote server idk
         'PORT': '5432', #this is just default postgresql port
     }
 
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
