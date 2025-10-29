@@ -30,12 +30,9 @@ def combineItems(item1, item2):
 def addItem(item1, item2):
     res = combineItems(item1, item2)
     if (res is None):
-        return  # Nothing to add
-
-    # 1. Get the one, single "guest" profile
+        return  
     guest_profile = get_guest_profile()
 
-    # 2. Add the new item to *that specific profile's* list
     guest_profile.discovered_items.add(res)
 
 
