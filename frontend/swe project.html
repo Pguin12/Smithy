@@ -29,40 +29,145 @@
             );
         }
 
-        function Workspace({workspaceItems, onDrop, onDragOver}){
+        function Workspace({workspaceItems, onDrop, onDragOver, onItemDrag, onItemDrop}){
             return(
                 <main id="workspace" className="page-content" tabIndex="0" aria-label="Workspace (drop area)"
                     onDrop={onDrop}
                     onDragOver={onDragOver}>
                     {workspaceItems.length === 0 ? (
-                        <p className="workspace-placeholder">Drag items here</p>
+                        <p className="workspace-placeholder"><b>Drag items here</b></p>
                     ) : (workspaceItems.map((item,i) => (
-                        <div key={i} className="workspace-item">{item}</div>
+                        <div 
+                            key={i} 
+                            className="workspace-item"
+                            style={{
+                                position: 'absolute',
+                                left: `${item.x}px`,
+                                top: `${item.y}px`,
+                                cursor: 'move'
+                            }}
+                            draggable="true"
+                            onDragStart={(e) => onItemDrag(e, i)}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => onItemDrop(e, i)}
+                        >
+                            {item.name}
+                        </div>
                     )))}
                 </main>
             );
         }
         function App(){
             const [workspaceItems, setWorkspaceItems] = useState([]);
+            const [draggingIndex, setDraggingIndex] = useState(null);
+            
             const handleDragStart = (e, item) => {
                 e.dataTransfer.setData("text/plain", item);
+                e.dataTransfer.effectAllowed = "copy";
             };
+            
+            const handleItemDrag = (e, index) => {
+                setDraggingIndex(index);
+                const item = workspaceItems[index];
+                if (item) e.dataTransfer.setData('text/plain', item.name);
+                e.dataTransfer.effectAllowed = "move";
+            };
+            
             const handleDrop = (e) => {
                 e.preventDefault();
-                const item = e.dataTransfer.getData("text/plain");
-                setWorkspaceItems((prevItems) => [...prevItems, item]);
+                const workspace = document.getElementById("workspace");
+                const rect = workspace.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (draggingIndex !== null) {
+                    setWorkspaceItems((prevItems) => {
+                        const newItems = [...prevItems];
+                        newItems[draggingIndex] = {
+                            ...newItems[draggingIndex],
+                            x: x - 50, 
+                            y: y - 20
+                        };
+                        return newItems;
+                    });
+                    setDraggingIndex(null);
+                } else {
+                    const item = e.dataTransfer.getData("text/plain");
+                    if (item) {
+                        setWorkspaceItems((prevItems) => [...prevItems, {
+                            name: item,
+                            x: x - 50,
+                            y: y - 20
+                        }]);
+                    }
+                }
             };
+            
             const handleDragOver = (e) => {
                 e.preventDefault();
+            };
+            const API_BASE = 'http://localhost:8000/api';
+            const [message, setMessage] = useState('');
+
+            function showMessage(msg){
+                setMessage(msg);
+                setTimeout(()=> setMessage(''), 3500);
+            }
+
+            // called when a workspace item has another item dropped onto it
+            const handleItemDrop = async (e, targetIndex) => {
+                e.preventDefault();
+                const otherName = e.dataTransfer.getData('text/plain');
+                if (!otherName) return;
+                const target = workspaceItems[targetIndex];
+                if (!target || target.name === otherName) return;
+
+                try{
+                    const resp = await fetch(API_BASE + '/combine/', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify({ item1_name: target.name, item2_name: otherName })
+                    });
+                    const data = await resp.json();
+                    if (resp.ok){
+                        showMessage(data.message || JSON.stringify(data));
+                        if (data.is_new && data.new_item){
+                            // add new item near the target
+                            setWorkspaceItems(prev => [...prev, {
+                                name: data.new_item,
+                                x: (target.x || 0) + 40,
+                                y: (target.y || 0) + 10
+                            }]);
+                        }
+                    } else {
+                        showMessage('Error: ' + (data.error || resp.statusText));
+                    }
+                } catch(err){
+                    showMessage('Network error: ' + err.message);
+                }
             };
            return(
             <React.Fragment>
                 <Sidebar onDragStart={handleDragStart}/>
-                <Workspace 
+                    <Workspace 
                     workspaceItems={workspaceItems}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
+                        onItemDrag={handleItemDrag}
+                        onItemDrop={handleItemDrop}
                 />  
+                    {message && (
+                        <div id="api-message-box" style={{
+                            position: 'fixed',
+                            right: '16px',
+                            bottom: '16px',
+                            padding: '10px 14px',
+                            background: 'rgba(0,0,0,0.8)',
+                            color: '#fff',
+                            borderRadius: '6px',
+                            zIndex: 9999
+                        }}>{message}</div>
+                    )}
             </React.Fragment>);
            
         }
