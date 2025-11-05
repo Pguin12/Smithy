@@ -44,13 +44,15 @@
 
         function Workspace({workspaceItems, onDrop, onDragOver, onItemDrag, onItemDrop}){
             return(
+
                 <main id="workspace" className="page-content" tabIndex="0" aria-label="Workspace (drop area)"
                     onDrop={onDrop}
                     onDragOver={onDragOver}>
                     {workspaceItems.length === 0 ? (
                         <p className="workspace-placeholder"><b>Drag items here</b></p>
                     ) : (workspaceItems.map((item,i) => (
-                        <div 
+                        <img 
+                            src={`./materials/${item.name}.png`}
                             key={i} 
                             className="workspace-item"
                             style={{
@@ -63,9 +65,7 @@
                             onDragStart={(e) => onItemDrag(e, i)}
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={(e) => onItemDrop(e, i)}
-                        >
-                            {item.name}
-                        </div>
+                        />
                     )))}
                 </main>
             );
