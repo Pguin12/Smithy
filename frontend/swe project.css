@@ -19,23 +19,25 @@ body {
   overflow: auto;
 }
 
-#sidebar-list { 
-
+.sidebar-list { 
   padding: 0; 
   margin: 0; 
 }
 
-#sidebar-list .items.draggable {
-  background: #fff;
+.sidebar-list .items .draggable {
   border: 1px solid rgba(0,0,0,0.06);
-  padding: 10px 12px;
+  padding: 5px 6px;
   border-radius: 6px;
   cursor: grab;
   margin-bottom: 8px;
 }
 
-#sidebar-list .items.draggable:active { 
+.sidebar-list .items .draggable:active { 
   cursor: grabbing; 
+}
+
+.sidebar-list .items .item-name {
+  margin-top: -1.25rem;
 }
 
 /* everything below here is for the space where we combine elements */
