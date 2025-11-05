@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  background-image:linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)), url("./swe background.jpg");
+  background-image:linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)), url("./images/swe background.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -20,12 +20,12 @@ body {
 }
 
 #sidebar-list { 
-  list-style: none; 
+
   padding: 0; 
   margin: 0; 
 }
 
-#sidebar-list li.draggable {
+#sidebar-list .items.draggable {
   background: #fff;
   border: 1px solid rgba(0,0,0,0.06);
   padding: 10px 12px;
@@ -34,7 +34,7 @@ body {
   margin-bottom: 8px;
 }
 
-#sidebar-list li.draggable:active { 
+#sidebar-list .items.draggable:active { 
   cursor: grabbing; 
 }
 
