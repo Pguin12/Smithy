@@ -265,7 +265,7 @@
                     if (resp.ok){
                         showMessage(data.message || JSON.stringify(data));
                         if (data.is_new && data.new_item){
-                            // add new item near the target
+                            // add new item near target
                             setWorkspaceItems(prev => [...prev, {
                                 name: data.new_item,
                                 x: (target.x || 0) + 40,
