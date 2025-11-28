@@ -2,13 +2,150 @@ from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from .models import CraftingRecipe, Item, UserList
 from .serializer import ItemSerializer
 from typing import Optional
-# Create your views here.
 
+
+# ============================================================================
+# AUTHENTICATION VIEWS
+# ============================================================================
+
+@csrf_exempt
+@api_view(['POST'])
+def register(request):
+    """Register a new user"""
+    username = request.data.get('username')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response(
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(username=username).exists():
+        return Response(
+            {"error": "Username already exists."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create user
+    user = User.objects.create_user(
+        username=username,
+        email=email or '',
+        password=password
+    )
+    
+    # Create user profile
+    user_profile, _ = UserList.objects.get_or_create(user=user)
+    
+    # Get or create token
+    token, _ = Token.objects.get_or_create(user=user)
+    
+    return Response({
+        "message": "User registered successfully",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        },
+        "token": token.key
+    }, status=status.HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def login(request):
+    """Login user and return token"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    if not username or not password:
+        return Response(
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = authenticate(username=username, password=password)
+    
+    if not user:
+        return Response(
+            {"error": "Invalid credentials."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    # Get or create token
+    token, _ = Token.objects.get_or_create(user=user)
+    
+    return Response({
+        "message": "Login successful",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        },
+        "token": token.key
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def logout(request):
+    """Logout user - delete their token"""
+    try:
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        return Response(
+            {"message": "Logout successful"},
+            status=status.HTTP_200_OK
+        )
+    except Token.DoesNotExist:
+        return Response(
+            {"error": "Token not found."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(['GET'])
+def get_user_profile(request):
+    """Get current user's profile and discovered items"""
+    if not request.user.is_authenticated:
+        return Response(
+            {"error": "Not authenticated."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    try:
+        user_profile = UserList.objects.get(user=request.user)
+        discovered = user_profile.discovered_items.all()
+        
+        return Response({
+            "user": {
+                "id": request.user.id,
+                "username": request.user.username,
+                "email": request.user.email
+            },
+            "discovered_items": [
+                {"id": item.id, "name": item.name, "category": item.category}
+                for item in discovered
+            ],
+            "total_discovered": discovered.count()
+        }, status=status.HTTP_200_OK)
+    except UserList.DoesNotExist:
+        return Response(
+            {"error": "User profile not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+# ============================================================================
+# GAME LOGIC VIEWS
+# ============================================================================
 
 def get_guest_profile():
     """Get or create guest user profile"""
@@ -27,6 +164,7 @@ def combineItems(item1, item2) -> Optional[Item]:
         return None
 
 
+<<<<<<< Updated upstream
 @api_view(['GET'])
 def get_all_items(request):
     """Get all items in the game"""
@@ -59,6 +197,16 @@ def get_user(request):
     serializer = ItemSerializer(discovered, many=True)
     return Response({
         "username": guest_profile.user.username,
+=======
+@api_view(['GET'])
+def get_user(request):
+    """Get current user's discovered items"""
+    user_profile = get_guest_profile()
+    discovered = user_profile.discovered_items.all()
+    serializer = UserSerializer(discovered, many=True)
+    return Response({
+        "username": user_profile.user.username,
+>>>>>>> Stashed changes
         "discovered_items": serializer.data,
         "total_discovered": discovered.count()
     })
