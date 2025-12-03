@@ -17,6 +17,12 @@ python manage.py migrate
 
 python manage.py runserver
 
+--Create a .env file inside backend.
+
+create a django secret key and name the variable DJANGO_SECRETKEY within the .env
+
+copy and paste into the .env: DATABASE_URL=postgresql://postgres.jfzmxhnswjpofzfejniy:knightsoftheroundtable@aws-1-us-east-1.pooler.supabase.com:5432/postgres
+
 PostgreSQL init:
 
 -- Create the database
