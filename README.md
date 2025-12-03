@@ -36,6 +36,6 @@ cd frontend
 python -m http.server 3000
 
 --Access site with
-http://localhost:3000/
+http://localhost:3000/swe%20project.html
 
 
