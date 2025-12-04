@@ -222,6 +222,9 @@
             const handleLogin = (userData, token) => {
                 setUser(userData);
                 setAuthToken(token);
+                if (userData.is_staff || userData.is_superuser) {
+                    window.location.href = '/admin/';
+                }
             };
 
             const handleLogout = async () => {
