@@ -95,7 +95,6 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Token ${token}`,
                         },
                         body: JSON.stringify(payload)
                     });
@@ -213,13 +212,23 @@
             useEffect(() => {
                 const token = localStorage.getItem('auth_token');
                 const userData = localStorage.getItem('user_data');
+                console.log('Stored user_data:', userData);
                 if (token && userData) {
-                    setAuthToken(token);
-                    setUser(JSON.parse(userData));
+                    const parsedUser = JSON.parse(userData);
+                    if (parsedUserData && parsedUserData.username) {
+                        setAuthToken(token);
+                        setUser(JSON.parse(userData));
+                    } else {
+                        throw new Error("Invalid user data in localStorage");
+                    }
                 }
             }, []);
 
             const handleLogin = (userData, token) => {
+                if (!userData) {
+                    console.error('User data is undefined');
+                    return;
+                }
                 setUser(userData);
                 setAuthToken(token);
                 if (userData.is_staff || userData.is_superuser) {
@@ -307,7 +316,7 @@
                 const otherName = e.dataTransfer.getData('text/plain');
                 if (!otherName) return;
                 const target = workspaceItems[targetIndex];
-                if (!target || target.name === otherName) return;
+                if (!target) return;
 
                 try{
                     const headers = {'Content-Type':'application/json'};
