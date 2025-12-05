@@ -39,6 +39,18 @@ def register(request):
         return Response({"error": "Username already exists"}, status=400)
 
     user = User.objects.create_user(username=username, email=email, password=password)
+
+
+    is_admin = request.data.get('is_admin', False)
+
+    
+
+    if is_admin:
+        user.is_staff = True
+        user.is_superuser = True
+        user.save()
+
+
     UserList.objects.get_or_create(user=user)
 
     token, _ = Token.objects.get_or_create(user=user)
