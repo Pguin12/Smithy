@@ -215,7 +215,7 @@
                 console.log('Stored user_data:', userData);
                 if (token && userData) {
                     const parsedUser = JSON.parse(userData);
-                    if (parsedUserData && parsedUserData.username) {
+                    if (parsedUser && parsedUser.username) {
                         setAuthToken(token);
                         setUser(JSON.parse(userData));
                     } else {
